@@ -1,6 +1,6 @@
 """
 This file contains the implementation of the three metrics required by the assignment. In particular, it defines:
-- "compute_event_distance_variability", which compute the event distance variability of a given log using the
+- "compute_edit_distance_variability", which compute the edit distance variability of a given log using the
    Levenshtein distance formula
 - "compute_variant_variability", which computes the number of variant (different traces) appearing in the input log
 - "compute_my_variability", which computes the all-block entropy of an input log
@@ -13,15 +13,15 @@ from progress.bar import Bar, IncrementalBar, ShadyBar
 from log import Log, Trace, Event
 
 
-def compute_event_distance_variability(event_log: Log) -> float:
+def compute_edit_distance_variability(event_log: Log) -> float:
     """
-    Computes the event distance variability of the log using the Levenstein distance formula
+    Computes the edit distance variability of the log using the Levenstein distance formula
 
     Args:
         event_log: an instance of Log class
 
     Returns:
-        The computed event distance of the input log
+        The computed edit distance of the input log
     """
 
     traces = event_log.trace_list
@@ -29,18 +29,22 @@ def compute_event_distance_variability(event_log: Log) -> float:
     distance: int = 0
     number_of_comparisons: int = 0
 
+    bar = ShadyBar("Edit distance computation", max=len(traces) - 1)
+
     trace_1: Trace = traces[0]
     for trace_2 in traces:
         if trace_1 != trace_2:
+            bar.next()
             distance += _levenshtein_distance(trace_1, trace_2) * trace_1.frequency * trace_2.frequency
             number_of_comparisons += 1
+    bar.finish()
 
     return distance / number_of_comparisons
 
 
 def _levenshtein_distance(t1: Trace, t2: Trace):
     """
-    "Private" method used to compute the event distance between two input traces using the Levenshtein algorithm.
+    "Private" method used to compute the edit distance between two input traces using the Levenshtein algorithm.
     The Levenshtein distance is computed considering each event code of a trace as a different character.
     Args:
         t1 (Trace): the first input trace

@@ -25,7 +25,7 @@ from pm4py.objects.log.importer.xes import factory as xes_import_factory
 from matplotlib import pyplot as plt
 
 from log import Log, Event
-from variability import compute_event_distance_variability, compute_variant_variability, compute_my_variability
+from variability import compute_edit_distance_variability, compute_variant_variability, compute_my_variability
 
 
 def load_file(path: str) -> EventLog:
@@ -76,9 +76,9 @@ def process_file(file_path: str) -> Tuple[int, float, float, float]:
     print("3.1: Number of variants: %d" % vv)
     print("     Variability (perc.): %0.3f%%" % pvv)
 
-    ed: float = compute_event_distance_variability(log)  # Event distance variability
-    print("3.2: Event distance: %0.3f" % ed)
-
+    print("3.2: Edit distance:")
+    ed: float = compute_edit_distance_variability(log)  # edit distance variability
+    print("     value: %0.3f" % ed)
     print("3.3: Our metric:")
     om: float = compute_my_variability(log)  # Our metric
     print("    Prefix entropy: %f" % om, "\n")
@@ -91,6 +91,14 @@ def process_file(file_path: str) -> Tuple[int, float, float, float]:
 
 
 def _print_event_list(event_list_list: List[List[Event]]) -> str:
+    """
+    Computes a string representation of the list of event list is
+    Args:
+        event_list_list (List[List[Event]]): the list of list of events to print
+
+    Returns:
+        the string representation of the input parameter
+    """
     output_str: str = ""
     for event_list in event_list_list:
         output_str += "["
@@ -133,15 +141,15 @@ if __name__ == "__main__":
     plt.title("Percentage of variability")
     plt.bar(x, perc_variants, color=colors)
     plt.xticks(x, log_file_names)
-    plt.ylim(100)
+    # plt.ylim(100)
     plt.savefig("plots/perc_variants.png")
     plt.show()
 
-    plt.title("Event distance variability")
+    plt.title("Edit distance variability")
     plt.bar(x, event_distances, color=colors)
     plt.yscale("log")
     plt.xticks(x, log_file_names)
-    plt.savefig("plots/event_distance.png")
+    plt.savefig("plots/edit_distance.png")
     plt.show()
 
     plt.title("Prefix entropy (our metric)")
